@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Storage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #666;
+        }
+        input[type="file"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .file-list {
+            margin-top: 20px;
+        }
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        .progress {
+            width: 100%;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            margin: 10px 0;
+            display: none;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #007bff;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📁 File Storage</h1>
+        
+        <div class="section">
+            <h2>📤 Datei hochladen</h2>
+            <input type="file" id="fileInput" multiple>
+            <div class="progress" id="uploadProgress">
+                <div class="progress-bar" id="uploadProgressBar"></div>
+            </div>
+            <button onclick="uploadFile()">Hochladen</button>
+            <div class="message" id="uploadMessage"></div>
+        </div>
+
+        <div class="section">
+            <h2>📥 Datei herunterladen</h2>
+            <input type="text" id="downloadFilename" placeholder="Dateiname eingeben...">
+            <button onclick="downloadFile()">Herunterladen</button>
+            <div class="message" id="downloadMessage"></div>
+        </div>
+
+        <div class="section">
+            <h2>📋 Alle Dateien</h2>
+            <button onclick="loadFiles()">Liste aktualisieren</button>
+            <div class="file-list" id="fileList"></div>
+        </div>
+    </div>
+
+    <script>
+        function showMessage(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = isError ? 'message error' : 'message success';
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 3000);
+        }
+
+        function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const files = fileInput.files;
+            
+            if (files.length === 0) {
+                showMessage('uploadMessage', 'Bitte wählen Sie eine Datei aus.', true);
+                return;
+            }
+
+            const progressDiv = document.getElementById('uploadProgress');
+            const progressBar = document.getElementById('uploadProgressBar');
+            
+            Array.from(files).forEach(file => {
+                const xhr = new XMLHttpRequest();
+                
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        progressDiv.style.display = 'block';
+                        progressBar.style.width = percentComplete + '%';
+                    }
+                });
+
+                xhr.addEventListener('load', () => {
+                    progressDiv.style.display = 'none';
+                    if (xhr.status === 201) {
+                        showMessage('uploadMessage', `Datei "${file.name}" erfolgreich hochgeladen!`);
+                        loadFiles();
+                        fileInput.value = '';
+                    } else {
+                        showMessage('uploadMessage', `Fehler beim Hochladen von "${file.name}": ${xhr.responseText}`, true);
+                    }
+                });
+
+                xhr.addEventListener('error', () => {
+                    progressDiv.style.display = 'none';
+                    showMessage('uploadMessage', `Fehler beim Hochladen von "${file.name}"`, true);
+                });
+
+                xhr.open('POST', `/upload/${encodeURIComponent(file.name)}`);
+                xhr.send(file);
+            });
+        }
+
+        function downloadFile() {
+            const filename = document.getElementById('downloadFilename').value.trim();
+            
+            if (!filename) {
+                showMessage('downloadMessage', 'Bitte geben Sie einen Dateinamen ein.', true);
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.href = `/download/${encodeURIComponent(filename)}`;
+            link.download = filename;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            
+            link.onclick = () => {
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    showMessage('downloadMessage', `Download von "${filename}" gestartet!`);
+                }, 100);
+            };
+            
+            link.click();
+        }
+
+        function loadFiles() {
+            fetch('/files')
+                .then(response => response.json())
+                .then(files => {
+                    const fileList = document.getElementById('fileList');
+                    
+                    if (files.length === 0) {
+                        fileList.innerHTML = '<p>Keine Dateien gefunden.</p>';
+                        return;
+                    }
+                    
+                    fileList.innerHTML = files.map(filename => `
+                        <div class="file-item">
+                            <span>📄 ${filename}</span>
+                            <button onclick="downloadFileFromList('${filename}')">Herunterladen</button>
+                        </div>
+                    `).join('');
+                })
+                .catch(error => {
+                    document.getElementById('fileList').innerHTML = '<p style="color: red;">Fehler beim Laden der Dateiliste.</p>';
+                });
+        }
+
+        function downloadFileFromList(filename) {
+            const link = document.createElement('a');
+            link.href = `/download/${encodeURIComponent(filename)}`;
+            link.download = filename;
+            link.click();
+        }
+
+        // Dateiliste beim Laden der Seite laden
+        document.addEventListener('DOMContentLoaded', loadFiles);
+    </script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+basePath: /
+host: localhost:8080
+info:
+  contact: {}
+  description: A simple file storage API with streaming support
+  title: File Storage API
+  version: "1.0"
+paths:
+  /download/{filename}:
+    get:
+      description: Download a file from the server with streaming support for large
+        files
+      parameters:
+      - description: Filename
+        in: path
+        name: filename
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: File content
+          schema:
+            type: file
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "404":
+          description: File not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Download a file
+      tags:
+      - files
+  /files:
+    get:
+      description: Get a JSON array of all filenames stored on the server
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of filenames
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: List all files
+      tags:
+      - files
+  /upload/{filename}:
+    post:
+      consumes:
+      - application/octet-stream
+      description: Upload a file to the server with streaming support for large files
+      parameters:
+      - description: Filename
+        in: path
+        name: filename
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "201":
+          description: File uploaded successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Upload a file
+      tags:
+      - files
+swagger: "2.0"
