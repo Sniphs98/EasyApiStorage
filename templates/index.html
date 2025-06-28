@@ -5,235 +5,462 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Storage</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary-color: #f8fafc;
+            --accent-color: #10b981;
+            --error-color: #ef4444;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --bg-color: #f1f5f9;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
         }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        .section h2 {
-            margin-top: 0;
-            color: #666;
-        }
-        input[type="file"], input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+
+        * {
             box-sizing: border-box;
         }
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .file-list {
-            margin-top: 20px;
-        }
-        .file-item {
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            height: 100vh;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
             align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
+            gap: 2rem;
+            box-shadow: var(--shadow-sm);
         }
-        .file-item:last-child {
-            border-bottom: none;
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        .progress {
+
+        .search-container {
+            flex: 1;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .search-input {
             width: 100%;
-            height: 20px;
-            background-color: #f0f0f0;
-            border-radius: 10px;
-            margin: 10px 0;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: var(--secondary-color);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: white;
+            box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .upload-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .upload-btn input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow: auto;
+        }
+
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .file-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .file-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-color);
+        }
+
+        .file-icon {
+            width: 3rem;
+            height: 3rem;
+            margin: 0 auto 0.75rem;
+            color: var(--primary-color);
+        }
+
+        .file-name {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            word-break: break-word;
+            font-size: 0.9rem;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 0.75rem;
+        }
+
+        .btn-small {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: var(--radius-sm);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .btn-download {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn-download:hover {
+            background: #059669;
+        }
+
+        .progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--border-color);
+            z-index: 1000;
             display: none;
         }
+
         .progress-bar {
             height: 100%;
-            background-color: #007bff;
-            border-radius: 10px;
+            background: var(--primary-color);
             transition: width 0.3s ease;
         }
+
         .message {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            z-index: 1000;
             display: none;
+            max-width: 400px;
         }
+
         .success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+            background: rgb(34 197 94 / 0.9);
+            color: white;
+            backdrop-filter: blur(10px);
         }
+
         .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            background: rgb(239 68 68 / 0.9);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+            grid-column: 1 / -1;
+        }
+
+        .empty-state svg {
+            width: 4rem;
+            height: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .stats {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .search-container {
+                max-width: none;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .files-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 0.75rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>📁 File Storage</h1>
+    <div class="header">
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+                <polyline points="13,2 13,9 20,9"/>
+            </svg>
+            File Storage
+        </div>
         
-        <div class="section">
-            <h2>📤 Datei hochladen</h2>
-            <input type="file" id="fileInput" multiple>
-            <div class="progress" id="uploadProgress">
-                <div class="progress-bar" id="uploadProgressBar"></div>
-            </div>
-            <button onclick="uploadFile()">Hochladen</button>
-            <div class="message" id="uploadMessage"></div>
+        <div class="search-container">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input type="text" class="search-input" id="searchInput" placeholder="Dateien durchsuchen..." oninput="filterFiles()">
         </div>
 
-        <div class="section">
-            <h2>📥 Datei herunterladen</h2>
-            <input type="text" id="downloadFilename" placeholder="Dateiname eingeben...">
-            <button onclick="downloadFile()">Herunterladen</button>
-            <div class="message" id="downloadMessage"></div>
+        <div class="stats" id="fileStats">
+            <span id="fileCount">0 Dateien</span>
         </div>
 
-        <div class="section">
-            <h2>📋 Alle Dateien</h2>
-            <button onclick="loadFiles()">Liste aktualisieren</button>
-            <div class="file-list" id="fileList"></div>
+        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7,10 12,15 17,10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Upload
+            <input type="file" id="fileInput" multiple onchange="uploadFile()">
+        </button>
+    </div>
+
+    <div class="progress" id="uploadProgress">
+        <div class="progress-bar" id="uploadProgressBar"></div>
+    </div>
+
+    <div class="message" id="message"></div>
+
+    <div class="main-content">
+        <div class="files-grid" id="fileList">
+            <!-- Files will be loaded here -->
         </div>
     </div>
 
     <script>
-        function showMessage(elementId, message, isError = false) {
-            const element = document.getElementById(elementId);
+        const showMessage = (message, isError = false) => {
+            const element = document.getElementById('message');
             element.textContent = message;
             element.className = isError ? 'message error' : 'message success';
             element.style.display = 'block';
             setTimeout(() => {
                 element.style.display = 'none';
             }, 3000);
-        }
+        };
 
-        function uploadFile() {
+        let allFiles = [];
+
+        const uploadFile = async () => {
             const fileInput = document.getElementById('fileInput');
-            const files = fileInput.files;
+            const files = Array.from(fileInput.files);
             
-            if (files.length === 0) {
-                showMessage('uploadMessage', 'Bitte wählen Sie eine Datei aus.', true);
-                return;
-            }
+            if (files.length === 0) return;
 
             const progressDiv = document.getElementById('uploadProgress');
             const progressBar = document.getElementById('uploadProgressBar');
             
-            Array.from(files).forEach(file => {
+            for (const file of files) {
+                try {
+                    await uploadSingleFile(file, progressDiv, progressBar);
+                    showMessage(`Datei "${file.name}" erfolgreich hochgeladen!`);
+                } catch (error) {
+                    showMessage(`Fehler beim Hochladen von "${file.name}": ${error.message}`, true);
+                }
+            }
+            
+            loadFiles();
+            fileInput.value = '';
+        };
+
+        const uploadSingleFile = (file, progressDiv, progressBar) => {
+            return new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
                 
                 xhr.upload.addEventListener('progress', (e) => {
                     if (e.lengthComputable) {
                         const percentComplete = (e.loaded / e.total) * 100;
                         progressDiv.style.display = 'block';
-                        progressBar.style.width = percentComplete + '%';
+                        progressBar.style.width = `${percentComplete}%`;
                     }
                 });
 
                 xhr.addEventListener('load', () => {
                     progressDiv.style.display = 'none';
                     if (xhr.status === 201) {
-                        showMessage('uploadMessage', `Datei "${file.name}" erfolgreich hochgeladen!`);
-                        loadFiles();
-                        fileInput.value = '';
+                        resolve();
                     } else {
-                        showMessage('uploadMessage', `Fehler beim Hochladen von "${file.name}": ${xhr.responseText}`, true);
+                        reject(new Error(xhr.responseText));
                     }
                 });
 
                 xhr.addEventListener('error', () => {
                     progressDiv.style.display = 'none';
-                    showMessage('uploadMessage', `Fehler beim Hochladen von "${file.name}"`, true);
+                    reject(new Error('Netzwerkfehler'));
                 });
 
                 xhr.open('POST', `/upload/${encodeURIComponent(file.name)}`);
                 xhr.send(file);
             });
-        }
+        };
 
-        function downloadFile() {
-            const filename = document.getElementById('downloadFilename').value.trim();
+        const filterFiles = () => {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredFiles = allFiles.filter(filename => 
+                filename.toLowerCase().includes(searchTerm)
+            );
+            displayFiles(filteredFiles);
+        };
+
+        const loadFiles = async () => {
+            try {
+                const response = await fetch('/files');
+                allFiles = await response.json();
+                displayFiles(allFiles);
+                updateFileStats();
+            } catch (error) {
+                document.getElementById('fileList').innerHTML = `
+                    <div class="empty-state">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="15" y1="9" x2="9" y2="15"/>
+                            <line x1="9" y1="9" x2="15" y2="15"/>
+                        </svg>
+                        <p style="color: var(--error-color);">Fehler beim Laden der Dateiliste</p>
+                    </div>
+                `;
+            }
+        };
+
+        const displayFiles = (files) => {
+            const fileList = document.getElementById('fileList');
             
-            if (!filename) {
-                showMessage('downloadMessage', 'Bitte geben Sie einen Dateinamen ein.', true);
+            if (files.length === 0) {
+                fileList.innerHTML = `
+                    <div class="empty-state">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+                            <polyline points="13,2 13,9 20,9"/>
+                        </svg>
+                        <p>Keine Dateien gefunden</p>
+                        <p style="font-size: 0.9rem; opacity: 0.7;">Laden Sie Ihre erste Datei hoch, um zu beginnen</p>
+                    </div>
+                `;
                 return;
             }
-
-            const link = document.createElement('a');
-            link.href = `/download/${encodeURIComponent(filename)}`;
-            link.download = filename;
-            link.style.display = 'none';
-            document.body.appendChild(link);
             
-            link.onclick = () => {
-                setTimeout(() => {
-                    document.body.removeChild(link);
-                    showMessage('downloadMessage', `Download von "${filename}" gestartet!`);
-                }, 100);
-            };
-            
-            link.click();
-        }
+            fileList.innerHTML = files.map(filename => `
+                <div class="file-card" onclick="downloadFileFromList('${filename}')">
+                    <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+                        <polyline points="13,2 13,9 20,9"/>
+                    </svg>
+                    <div class="file-name">${filename}</div>
+                    <div class="file-actions">
+                        <button class="btn-small btn-download" onclick="event.stopPropagation(); downloadFileFromList('${filename}')">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17,8 12,3 7,8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            Download
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        };
 
-        function loadFiles() {
-            fetch('/files')
-                .then(response => response.json())
-                .then(files => {
-                    const fileList = document.getElementById('fileList');
-                    
-                    if (files.length === 0) {
-                        fileList.innerHTML = '<p>Keine Dateien gefunden.</p>';
-                        return;
-                    }
-                    
-                    fileList.innerHTML = files.map(filename => `
-                        <div class="file-item">
-                            <span>📄 ${filename}</span>
-                            <button onclick="downloadFileFromList('${filename}')">Herunterladen</button>
-                        </div>
-                    `).join('');
-                })
-                .catch(error => {
-                    document.getElementById('fileList').innerHTML = '<p style="color: red;">Fehler beim Laden der Dateiliste.</p>';
-                });
-        }
+        const updateFileStats = () => {
+            const count = allFiles.length;
+            document.getElementById('fileCount').textContent = `${count} ${count === 1 ? 'Datei' : 'Dateien'}`;
+        };
 
-        function downloadFileFromList(filename) {
+        const downloadFileFromList = (filename) => {
             const link = document.createElement('a');
             link.href = `/download/${encodeURIComponent(filename)}`;
             link.download = filename;
             link.click();
-        }
+        };
 
         // Dateiliste beim Laden der Seite laden
         document.addEventListener('DOMContentLoaded', loadFiles);
