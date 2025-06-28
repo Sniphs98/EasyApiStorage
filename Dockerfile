@@ -17,7 +17,7 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o apiStorage main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o SimpelWebFileBrowser main.go
 
 # Final stage - minimal image
 FROM alpine:latest
@@ -33,7 +33,7 @@ RUN addgroup -g 1001 -S appgroup && \
 WORKDIR /app
 
 # Copy binary from builder stage
-COPY --from=builder /app/apiStorage .
+COPY --from=builder /app/SimpelWebFileBrowser .
 
 # Copy templates directory
 COPY --from=builder /app/templates ./templates
@@ -56,4 +56,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:8080/ || exit 1
 
 # Run the application
-CMD ["./apiStorage"]
+CMD ["./SimpelWebFileBrowser"]

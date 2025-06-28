@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	_ "apiStorage/docs"
+	_ "SimpelWebFileBrowser/docs"
 	"github.com/gorilla/mux"
 	httpSwagger "github.com/swaggo/http-swagger"
 )

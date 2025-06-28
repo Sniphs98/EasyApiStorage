@@ -1,4 +1,4 @@
-module apiStorage
+module SimpelWebFileBrowser
 
 go 1.23.2
 
