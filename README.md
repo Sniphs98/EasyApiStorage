@@ -11,11 +11,9 @@ A user-friendly file storage solution with modern web interface, built with Go a
 ## ✨ Features
 
 - 📁 **Folder Navigation** - Create and navigate through folder structures
-- 🔍 **Real-time Search** - Search through all files and folders
-- 📊 **Flexible Sorting** - Sort by name, date, or size
-- 📤 **Drag & Drop Upload** - Easy file upload with progress indicator
+- 🔍 **Search** - Search through all files and folders
+- 📊 **Sorting** - Sort by name, date, or size
 - 📱 **Responsive Design** - Works on desktop, tablet, and mobile
-- 🚀 **Streaming Support** - Efficient handling of large files
 - 📊 **Swagger API Docs** - Complete REST API documentation
 - 🐳 **Docker Ready** - Containerized and production-ready
 
@@ -36,6 +34,7 @@ go run main.go
 ```
 
 Access the application:
+
 - **Web Interface**: http://localhost:8080/
 - **API Docs**: http://localhost:8080/swagger/
 
@@ -49,13 +48,13 @@ docker run -d -p 8080:8080 -v $(pwd)/store:/app/store api-storage
 
 ## 📖 API Reference
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/` | Web Interface |
-| `GET` | `/files?path=<path>` | List files/folders |
-| `POST` | `/upload/{filename}?path=<path>` | Upload file |
-| `GET` | `/download/{filepath}` | Download file |
-| `POST` | `/create-folder` | Create folder |
+| Method | Endpoint                         | Description        |
+| ------ | -------------------------------- | ------------------ |
+| `GET`  | `/`                              | Web Interface      |
+| `GET`  | `/files?path=<path>`             | List files/folders |
+| `POST` | `/upload/{filename}?path=<path>` | Upload file        |
+| `GET`  | `/download/{filepath}`           | Download file      |
+| `POST` | `/create-folder`                 | Create folder      |
 
 ### Example API Calls
 
@@ -77,11 +76,13 @@ curl -X POST -H "Content-Type: application/json" \
 ⚠️ **Important**: This project is designed for development and internal use. For production environments on the internet, additional security measures should be implemented:
 
 **Current Security:**
+
 - ✅ Path-traversal protection
 - ✅ Input validation
 - ✅ Non-root Docker container
 
 **Recommended for Production:**
+
 - 🔐 Authentication & authorization
 - 🚦 Rate limiting
 - 🔒 HTTPS/TLS encryption
