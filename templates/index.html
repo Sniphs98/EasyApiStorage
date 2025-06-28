@@ -108,12 +108,7 @@
             box-shadow: var(--shadow-md);
         }
 
-        .upload-btn input[type="file"] {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
+
 
         .main-content {
             flex: 1;
@@ -144,6 +139,20 @@
             transform: translateY(-2px);
             box-shadow: var(--shadow-md);
             border-color: var(--primary-color);
+        }
+
+        .file-card.folder {
+            background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
+            border-color: #f59e0b;
+        }
+
+        .file-card.folder:hover {
+            border-color: #d97706;
+            background: linear-gradient(135deg, #fde68a 0%, #f59e0b 100%);
+        }
+
+        .folder-icon {
+            color: #d97706;
         }
 
         .file-icon {
@@ -251,6 +260,119 @@
             font-size: 0.875rem;
         }
 
+        .breadcrumb {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+
+        .breadcrumb-item:hover {
+            background: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        .breadcrumb-item.current {
+            color: var(--text-primary);
+            font-weight: 500;
+            cursor: default;
+        }
+
+        .breadcrumb-item.current:hover {
+            background: none;
+            color: var(--text-primary);
+        }
+
+        .breadcrumb-separator {
+            color: var(--text-secondary);
+            margin: 0 0.25rem;
+        }
+
+        .toolbar {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--secondary-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-toolbar:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .sort-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sort-select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            background: white;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .sort-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgb(37 99 235 / 0.1);
+        }
+
+        .sort-direction {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .sort-direction:hover {
+            background: var(--secondary-color);
+        }
+
+        .sort-direction.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
         @media (max-width: 768px) {
             .header {
                 padding: 1rem;
@@ -291,6 +413,21 @@
             <input type="text" class="search-input" id="searchInput" placeholder="Dateien durchsuchen..." oninput="filterFiles()">
         </div>
 
+        <div class="sort-container">
+            <select class="sort-select" id="sortSelect" onchange="sortFiles()">
+                <option value="name">Name</option>
+                <option value="date">Datum</option>
+                <option value="size">Größe</option>
+            </select>
+            <button class="sort-direction" id="sortDirection" onclick="toggleSortDirection()" title="Sortierreihenfolge umkehren">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18"/>
+                    <path d="M7 12h10"/>
+                    <path d="M10 18h4"/>
+                </svg>
+            </button>
+        </div>
+
         <div class="stats" id="fileStats">
             <span id="fileCount">0 Dateien</span>
         </div>
@@ -302,7 +439,7 @@
                 <line x1="12" y1="15" x2="12" y2="3"/>
             </svg>
             Upload
-            <input type="file" id="fileInput" multiple onchange="uploadFile()">
+            <input type="file" id="fileInput" multiple onchange="uploadFile()" style="display: none;">
         </button>
     </div>
 
@@ -311,6 +448,28 @@
     </div>
 
     <div class="message" id="message"></div>
+
+    <div class="breadcrumb" id="breadcrumb">
+        <!-- Breadcrumb navigation will be inserted here -->
+    </div>
+
+    <div class="toolbar">
+        <button class="btn-toolbar" onclick="goBack()" id="backBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5"/>
+                <path d="M12 19l-7-7 7-7"/>
+            </svg>
+            Zurück
+        </button>
+        <button class="btn-toolbar" onclick="createFolder()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                <path d="M12 11v6"/>
+                <path d="M9 14h6"/>
+            </svg>
+            Neuer Ordner
+        </button>
+    </div>
 
     <div class="main-content">
         <div class="files-grid" id="fileList">
@@ -330,6 +489,10 @@
         };
 
         let allFiles = [];
+        let currentSort = 'name';
+        let sortAscending = true;
+        let currentPath = '';
+        let pathHistory = [];
 
         const uploadFile = async () => {
             const fileInput = document.getElementById('fileInput');
@@ -379,26 +542,256 @@
                     reject(new Error('Netzwerkfehler'));
                 });
 
-                xhr.open('POST', `/upload/${encodeURIComponent(file.name)}`);
+                const url = currentPath ? 
+                    `/upload/${encodeURIComponent(file.name)}?path=${encodeURIComponent(currentPath)}` : 
+                    `/upload/${encodeURIComponent(file.name)}`;
+                
+                xhr.open('POST', url);
                 xhr.send(file);
             });
         };
 
         const filterFiles = () => {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filteredFiles = allFiles.filter(filename => 
-                filename.toLowerCase().includes(searchTerm)
+            
+            // Handle null or undefined allFiles
+            if (!allFiles || !Array.isArray(allFiles)) {
+                console.error('allFiles is not an array:', allFiles);
+                displayFiles([]);
+                return;
+            }
+            
+            const filteredFiles = allFiles.filter(file => 
+                file && file.name && file.name.toLowerCase().includes(searchTerm)
             );
             displayFiles(filteredFiles);
         };
 
-        const loadFiles = async () => {
+        const sortFiles = () => {
+            currentSort = document.getElementById('sortSelect').value;
+            
+            // Handle null or undefined allFiles
+            if (!allFiles || !Array.isArray(allFiles)) {
+                console.error('allFiles is not an array for sorting:', allFiles);
+                allFiles = [];
+                displayFiles([]);
+                return;
+            }
+            
+            const sortedFiles = [...allFiles].sort((a, b) => {
+                let comparison = 0;
+                
+                switch(currentSort) {
+                    case 'name':
+                        comparison = a.name.localeCompare(b.name);
+                        break;
+                    case 'date':
+                        comparison = new Date(a.date) - new Date(b.date);
+                        break;
+                    case 'size':
+                        comparison = a.size - b.size;
+                        break;
+                }
+                
+                return sortAscending ? comparison : -comparison;
+            });
+            
+            allFiles = sortedFiles;
+            filterFiles(); // Reapply current filter
+        };
+
+        const toggleSortDirection = () => {
+            sortAscending = !sortAscending;
+            const button = document.getElementById('sortDirection');
+            
+            if (sortAscending) {
+                button.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18"/>
+                        <path d="M7 12h10"/>
+                        <path d="M10 18h4"/>
+                    </svg>
+                `;
+                button.title = "Aufsteigend sortiert - Klicken für absteigend";
+            } else {
+                button.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10 6h4"/>
+                        <path d="M7 12h10"/>
+                        <path d="M3 18h18"/>
+                    </svg>
+                `;
+                button.title = "Absteigend sortiert - Klicken für aufsteigend";
+            }
+            
+            button.classList.toggle('active', !sortAscending);
+            sortFiles();
+        };
+
+        const formatFileSize = (bytes) => {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        };
+
+        const formatDate = (date) => {
+            return new Date(date).toLocaleDateString('de-DE', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        };
+
+        const navigateToFolder = (folderName) => {
+            if (typeof folderName === 'object') {
+                console.error('Folder name is an object, expected string:', folderName);
+                return;
+            }
+            pathHistory.push(currentPath);
+            const newPath = currentPath ? `${currentPath}/${folderName}` : folderName;
+            loadFiles(newPath);
+        };
+
+        const navigateToPath = (path) => {
+            if (typeof path === 'object') {
+                console.error('Path is an object, expected string:', path);
+                return;
+            }
+            pathHistory.push(currentPath);
+            loadFiles(path);
+        };
+
+        const goBack = () => {
+            if (pathHistory.length > 0) {
+                const previousPath = pathHistory.pop();
+                loadFiles(previousPath);
+            }
+        };
+
+        const updateBreadcrumb = () => {
+            const breadcrumb = document.getElementById('breadcrumb');
+            const pathParts = currentPath ? currentPath.split('/') : [];
+            
+            let breadcrumbHTML = `
+                <div class="breadcrumb-item ${!currentPath ? 'current' : ''}" onclick="navigateToPath('')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9,22 9,12 15,12 15,22"/>
+                    </svg>
+                    Home
+                </div>
+            `;
+            
+            let currentBuildPath = '';
+            pathParts.forEach((part, index) => {
+                currentBuildPath += (currentBuildPath ? '/' : '') + part;
+                const isLast = index === pathParts.length - 1;
+                
+                breadcrumbHTML += `
+                    <span class="breadcrumb-separator">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9,18 15,12 9,6"/>
+                        </svg>
+                    </span>
+                    <div class="breadcrumb-item ${isLast ? 'current' : ''}" ${isLast ? '' : `onclick="navigateToPath('${currentBuildPath}')"`}>
+                        ${part}
+                    </div>
+                `;
+            });
+            
+            breadcrumb.innerHTML = breadcrumbHTML;
+        };
+
+        const updateBackButton = () => {
+            const backBtn = document.getElementById('backBtn');
+            backBtn.style.opacity = pathHistory.length > 0 ? '1' : '0.5';
+            backBtn.style.pointerEvents = pathHistory.length > 0 ? 'auto' : 'none';
+        };
+
+        const createFolder = async () => {
+            const folderName = prompt('Ordnername eingeben:');
+            if (folderName && folderName.trim()) {
+                try {
+                    console.log('Creating folder:', folderName, 'in path:', currentPath);
+                    
+                    const requestBody = {
+                        name: folderName.trim(),
+                        path: currentPath || ''
+                    };
+                    
+                    console.log('Request body:', requestBody);
+                    
+                    const response = await fetch('/create-folder', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    if (response.ok) {
+                        showMessage(`Ordner "${folderName}" erfolgreich erstellt`);
+                        loadFiles(currentPath); // Reload current directory
+                    } else {
+                        const errorText = await response.text();
+                        console.error('Create folder error:', response.status, errorText);
+                        showMessage(`Fehler beim Erstellen des Ordners: ${errorText}`, true);
+                    }
+                } catch (error) {
+                    console.error('Create folder exception:', error);
+                    showMessage(`Fehler beim Erstellen des Ordners: ${error.message}`, true);
+                }
+            }
+        };
+
+        const loadFiles = async (path = '') => {
             try {
-                const response = await fetch('/files');
-                allFiles = await response.json();
-                displayFiles(allFiles);
+                console.log('Loading files for path:', path, 'Type:', typeof path);
+                
+                // Ensure path is a string
+                if (typeof path !== 'string') {
+                    console.error('Path is not a string:', path);
+                    path = '';
+                }
+                
+                const url = path ? `/files?path=${encodeURIComponent(path)}` : '/files';
+                console.log('Fetching URL:', url);
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server error:', response.status, errorText);
+                    throw new Error(`Server error: ${response.status} - ${errorText}`);
+                }
+                
+                const fileInfos = await response.json();
+                console.log('Received file infos:', fileInfos);
+                
+                // Handle null or invalid response
+                if (!fileInfos || !Array.isArray(fileInfos)) {
+                    console.error('Invalid response format:', fileInfos);
+                    allFiles = [];
+                } else {
+                    // Convert backend data to frontend format
+                    allFiles = fileInfos.map(fileInfo => ({
+                        name: fileInfo.name,
+                        isFolder: fileInfo.isFolder,
+                        date: new Date(fileInfo.modTime),
+                        size: fileInfo.size,
+                        path: fileInfo.path
+                    }));
+                }
+                
+                currentPath = path;
+                updateBreadcrumb();
+                updateBackButton();
+                sortFiles();
                 updateFileStats();
             } catch (error) {
+                console.error('Error loading files:', error);
                 document.getElementById('fileList').innerHTML = `
                     <div class="empty-state">
                         <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1">
@@ -406,7 +799,7 @@
                             <line x1="15" y1="9" x2="9" y2="15"/>
                             <line x1="9" y1="9" x2="15" y2="15"/>
                         </svg>
-                        <p style="color: var(--error-color);">Fehler beim Laden der Dateiliste</p>
+                        <p style="color: var(--error-color);">Fehler beim Laden der Dateiliste: ${error.message}</p>
                     </div>
                 `;
             }
@@ -415,7 +808,8 @@
         const displayFiles = (files) => {
             const fileList = document.getElementById('fileList');
             
-            if (files.length === 0) {
+            // Handle null or undefined files
+            if (!files || !Array.isArray(files) || files.length === 0) {
                 fileList.innerHTML = `
                     <div class="empty-state">
                         <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
@@ -429,23 +823,34 @@
                 return;
             }
             
-            fileList.innerHTML = files.map(filename => `
-                <div class="file-card" onclick="downloadFileFromList('${filename}')">
-                    <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
-                        <polyline points="13,2 13,9 20,9"/>
-                    </svg>
-                    <div class="file-name">${filename}</div>
-                    <div class="file-actions">
-                        <button class="btn-small btn-download" onclick="event.stopPropagation(); downloadFileFromList('${filename}')">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="17,8 12,3 7,8"/>
-                                <line x1="12" y1="3" x2="12" y2="15"/>
-                            </svg>
-                            Download
-                        </button>
+            fileList.innerHTML = files.map(file => `
+                <div class="file-card ${file.isFolder ? 'folder' : ''}" onclick="${file.isFolder ? `navigateToFolder('${file.name}')` : `downloadFileFromList('${file.name}')`}">
+                    ${file.isFolder ? `
+                        <svg class="file-icon folder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    ` : `
+                        <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+                            <polyline points="13,2 13,9 20,9"/>
+                        </svg>
+                    `}
+                    <div class="file-name">${file.name}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin: 0.25rem 0;">
+                        ${file.isFolder ? 'Ordner' : `${formatFileSize(file.size)} • ${formatDate(file.date)}`}
                     </div>
+                    ${!file.isFolder ? `
+                        <div class="file-actions">
+                            <button class="btn-small btn-download" onclick="event.stopPropagation(); downloadFileFromList('${file.name}')">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17,8 12,3 7,8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                                Download
+                            </button>
+                        </div>
+                    ` : ''}
                 </div>
             `).join('');
         };
@@ -456,14 +861,21 @@
         };
 
         const downloadFileFromList = (filename) => {
+            // Find the file in allFiles to get its full path
+            const file = allFiles.find(f => f.name === filename);
+            const fullPath = file && file.path ? file.path : (currentPath ? `${currentPath}/${filename}` : filename);
+            
             const link = document.createElement('a');
-            link.href = `/download/${encodeURIComponent(filename)}`;
+            link.href = `/download/${encodeURIComponent(fullPath)}`;
             link.download = filename;
             link.click();
         };
 
         // Dateiliste beim Laden der Seite laden
-        document.addEventListener('DOMContentLoaded', loadFiles);
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing...');
+            loadFiles('');
+        });
     </script>
 </body>
 </html>

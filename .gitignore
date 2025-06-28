@@ -1,0 +1,50 @@
+# Ignore all files in the store directory
+store/
+
+# Keep the store directory structure but ignore its contents
+!store/.gitkeep
+
+# Go build artifacts
+apiStorage
+apiStorage.exe
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Go test files
+*.test
+
+# Go coverage files
+*.out
+
+# Go module cache
+go.sum
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Swagger generated files (optional - uncomment if you want to ignore them)
+# docs/docs.go
+# docs/swagger.json
+# docs/swagger.yaml
