@@ -1,203 +1,111 @@
 # 📁 API Storage
 
-> Eine moderne File Storage API mit Web-Interface und Ordner-Navigation
+> Modern file storage API with web interface and folder navigation
 
 [![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go)](https://golang.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat&logo=docker)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Eine benutzerfreundliche File Storage Lösung mit modernem Web-Interface, gebaut mit Go und responsivem Frontend-Design.
-
-![API Storage Interface](https://via.placeholder.com/800x400/6366f1/ffffff?text=API+Storage+Interface)
+A user-friendly file storage solution with modern web interface, built with Go and responsive frontend design.
 
 ## ✨ Features
 
-- 📁 **Ordner-Navigation** - Erstellen und navigieren durch Ordnerstrukturen wie in einem Desktop-Dateimanager
-- 🔍 **Intelligente Suche** - Echtzeit-Suche durch alle Dateien und Ordner
-- 📊 **Flexible Sortierung** - Sortieren nach Name, Datum oder Größe (aufsteigend/absteigend)
-- 📤 **Drag & Drop Upload** - Einfaches Hochladen von Dateien mit Progress-Anzeige
-- 📱 **Responsive Design** - Optimiert für Desktop, Tablet und Mobile
-- 🚀 **Streaming Support** - Effizientes Handling großer Dateien ohne Memory-Probleme
-- 📊 **Swagger API Docs** - Vollständige REST API-Dokumentation
-- 🔒 **Sicherheit** - Path-Traversal Schutz und sichere Datei-Operationen
-- 🐳 **Docker Ready** - Containerisiert und produktionsbereit
+- 📁 **Folder Navigation** - Create and navigate through folder structures
+- 🔍 **Real-time Search** - Search through all files and folders
+- 📊 **Flexible Sorting** - Sort by name, date, or size
+- 📤 **Drag & Drop Upload** - Easy file upload with progress indicator
+- 📱 **Responsive Design** - Works on desktop, tablet, and mobile
+- 🚀 **Streaming Support** - Efficient handling of large files
+- 📊 **Swagger API Docs** - Complete REST API documentation
+- 🐳 **Docker Ready** - Containerized and production-ready
 
-## 🚀 Schnellstart
+## 🚀 Quick Start
 
-### Lokal ausführen
+### Run Locally
 
 ```bash
-# Repository klonen
+# Clone repository
 git clone https://github.com/yourusername/apiStorage.git
 cd apiStorage
 
-# Dependencies installieren
+# Install dependencies
 go mod tidy
 
-# Anwendung starten
+# Start application
 go run main.go
 ```
 
-Die Anwendung ist dann verfügbar unter:
-- **🌐 Web Interface**: http://localhost:8080/
-- **📚 API Docs**: http://localhost:8080/swagger/
+Access the application:
+- **Web Interface**: http://localhost:8080/
+- **API Docs**: http://localhost:8080/swagger/
 
-### Mit Docker (empfohlen)
+### Run with Docker
 
 ```bash
-# Image bauen
+# Build and run
 docker build -t api-storage .
-
-# Container starten mit persistentem Storage
-docker run -d \
-  --name api-storage \
-  -p 8080:8080 \
-  -v $(pwd)/store:/app/store \
-  api-storage
-
-# Logs anzeigen
-docker logs -f api-storage
+docker run -d -p 8080:8080 -v $(pwd)/store:/app/store api-storage
 ```
 
-## 📖 API Referenz
+## 📖 API Reference
 
-| Method | Endpoint | Beschreibung | Parameter |
-|--------|----------|--------------|-----------|
-| `GET` | `/` | Web Interface | - |
-| `GET` | `/files` | Dateien/Ordner auflisten | `?path=<pfad>` |
-| `POST` | `/upload/{filename}` | Datei hochladen | `?path=<pfad>` |
-| `GET` | `/download/{filepath}` | Datei herunterladen | - |
-| `POST` | `/create-folder` | Ordner erstellen | JSON Body |
-| `GET` | `/swagger/` | API Dokumentation | - |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/` | Web Interface |
+| `GET` | `/files?path=<path>` | List files/folders |
+| `POST` | `/upload/{filename}?path=<path>` | Upload file |
+| `GET` | `/download/{filepath}` | Download file |
+| `POST` | `/create-folder` | Create folder |
 
-### Beispiel API-Calls
+### Example API Calls
 
 ```bash
-# Dateien im Root-Verzeichnis auflisten
+# List files
 curl http://localhost:8080/files
 
-# Dateien in einem Unterordner auflisten
-curl http://localhost:8080/files?path=documents
-
-# Datei hochladen
+# Upload file
 curl -X POST -T myfile.txt http://localhost:8080/upload/myfile.txt
 
-# Ordner erstellen
+# Create folder
 curl -X POST -H "Content-Type: application/json" \
   -d '{"name":"NewFolder","path":""}' \
   http://localhost:8080/create-folder
 ```
 
-## ⚙️ Konfiguration
+## 🔒 Security Notice
 
-### Umgebungsvariablen
+⚠️ **Important**: This project is designed for development and internal use. For production environments on the internet, additional security measures should be implemented:
 
-| Variable | Beschreibung | Standard |
-|----------|--------------|----------|
-| `PORT` | Server Port | `8080` |
-| `GIN_MODE` | Gin Framework Modus | `debug` |
+**Current Security:**
+- ✅ Path-traversal protection
+- ✅ Input validation
+- ✅ Non-root Docker container
 
-### Docker Volumes
-
-```bash
-# Persistente Datei-Speicherung
--v $(pwd)/store:/app/store
-
-# Oder mit benanntem Volume
-docker volume create api-storage-data
--v api-storage-data:/app/store
-```
-
-## 🛠️ Entwicklung
-
-### Projekt-Struktur
-
-```
-apiStorage/
-├── main.go              # 🚀 Hauptanwendung & API Server
-├── templates/           # 🎨 HTML Templates
-│   └── index.html       #   └── Web Interface
-├── docs/               # 📚 Swagger API Dokumentation
-├── store/              # 💾 Datei-Speicher (Git-ignoriert)
-├── Dockerfile          # 🐳 Container Definition
-├── .gitignore          # 🚫 Git Ignore Regeln
-└── README.md           # 📖 Diese Dokumentation
-```
-
-### Lokale Entwicklung
-
-```bash
-# Development Server mit Hot Reload
-go run main.go
-
-# Tests ausführen (falls vorhanden)
-go test ./...
-
-# Code formatieren
-go fmt ./...
-
-# Dependencies aufräumen
-go mod tidy
-```
-
-### Build für verschiedene Plattformen
-
-```bash
-# Linux (64-bit)
-GOOS=linux GOARCH=amd64 go build -o apiStorage-linux main.go
-
-# Windows (64-bit)
-GOOS=windows GOARCH=amd64 go build -o apiStorage-windows.exe main.go
-
-# macOS (64-bit)
-GOOS=darwin GOARCH=amd64 go build -o apiStorage-macos main.go
-
-# ARM64 (z.B. Apple Silicon, Raspberry Pi)
-GOOS=linux GOARCH=arm64 go build -o apiStorage-arm64 main.go
-```
-
-## 🔒 Sicherheitshinweise
-
-⚠️ **Wichtig**: Dieses Projekt ist für Entwicklung und interne Nutzung konzipiert. Für Produktionsumgebungen im Internet sollten zusätzliche Sicherheitsmaßnahmen implementiert werden:
-
-**Implementierte Basis-Sicherheit:**
-- ✅ **Path-Traversal Schutz** - `..` Sequenzen werden blockiert
-- ✅ **Eingabe-Validierung** - Pfade und Dateinamen werden bereinigt
-- ✅ **Non-root Container** - Docker läuft mit unprivilegiertem User
-- ✅ **Sichere Pfad-Konstruktion** - Verhindert Zugriff außerhalb des Store-Verzeichnisses
-
-**Für Produktionsumgebungen empfohlen:**
-- 🔐 Authentifizierung und Autorisierung
-- 🚦 Rate Limiting und DDoS-Schutz
-- 🔒 HTTPS/TLS Verschlüsselung
-- 📝 Audit Logging und Monitoring
-- 📏 Dateigrößen- und Typ-Beschränkungen
+**Recommended for Production:**
+- 🔐 Authentication & authorization
+- 🚦 Rate limiting
+- 🔒 HTTPS/TLS encryption
+- 📝 Audit logging
 
 ## 🤝 Contributing
 
-Beiträge sind willkommen! Bitte:
+Contributions are welcome! Please:
 
-1. **Fork** das Repository
-2. **Branch** erstellen (`git checkout -b feature/amazing-feature`)
-3. **Commit** Änderungen (`git commit -m 'Add amazing feature'`)
-4. **Push** zum Branch (`git push origin feature/amazing-feature`)
-5. **Pull Request** öffnen
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
 
-## 📝 Lizenz
+## 📝 License
 
-Dieses Projekt steht unter der MIT License - siehe [LICENSE](LICENSE) Datei für Details.
-
-## 🙏 Acknowledgments
-
-- [Gorilla Mux](https://github.com/gorilla/mux) - HTTP Router
-- [Swagger](https://swagger.io/) - API Dokumentation
-- [Alpine Linux](https://alpinelinux.org/) - Minimales Docker Base Image
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
 <div align="center">
 
-**[⭐ Star dieses Projekt](https://github.com/yourusername/apiStorage)** wenn es dir gefällt!
+**[⭐ Star this project](https://github.com/yourusername/apiStorage)** if you like it!
 
 Made with ❤️ and Go
 

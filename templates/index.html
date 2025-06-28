@@ -410,16 +410,16 @@
                 <circle cx="11" cy="11" r="8"/>
                 <path d="m21 21-4.35-4.35"/>
             </svg>
-            <input type="text" class="search-input" id="searchInput" placeholder="Dateien durchsuchen..." oninput="filterFiles()">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search files..." oninput="filterFiles()">
         </div>
 
         <div class="sort-container">
             <select class="sort-select" id="sortSelect" onchange="sortFiles()">
                 <option value="name">Name</option>
-                <option value="date">Datum</option>
-                <option value="size">Größe</option>
+                <option value="date">Date</option>
+                <option value="size">Size</option>
             </select>
-            <button class="sort-direction" id="sortDirection" onclick="toggleSortDirection()" title="Sortierreihenfolge umkehren">
+            <button class="sort-direction" id="sortDirection" onclick="toggleSortDirection()" title="Toggle sort direction">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M3 6h18"/>
                     <path d="M7 12h10"/>
@@ -429,7 +429,7 @@
         </div>
 
         <div class="stats" id="fileStats">
-            <span id="fileCount">0 Dateien</span>
+            <span id="fileCount">0 Files</span>
         </div>
 
         <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
@@ -459,7 +459,7 @@
                 <path d="M19 12H5"/>
                 <path d="M12 19l-7-7 7-7"/>
             </svg>
-            Zurück
+            Back
         </button>
         <button class="btn-toolbar" onclick="createFolder()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -467,7 +467,7 @@
                 <path d="M12 11v6"/>
                 <path d="M9 14h6"/>
             </svg>
-            Neuer Ordner
+            New Folder
         </button>
     </div>
 
@@ -506,9 +506,9 @@
             for (const file of files) {
                 try {
                     await uploadSingleFile(file, progressDiv, progressBar);
-                    showMessage(`Datei "${file.name}" erfolgreich hochgeladen!`);
+                    showMessage(`File "${file.name}" uploaded successfully!`);
                 } catch (error) {
-                    showMessage(`Fehler beim Hochladen von "${file.name}": ${error.message}`, true);
+                    showMessage(`Error uploading "${file.name}": ${error.message}`, true);
                 }
             }
             
@@ -539,7 +539,7 @@
 
                 xhr.addEventListener('error', () => {
                     progressDiv.style.display = 'none';
-                    reject(new Error('Netzwerkfehler'));
+                    reject(new Error('Network error'));
                 });
 
                 const url = currentPath ? 
@@ -612,7 +612,7 @@
                         <path d="M10 18h4"/>
                     </svg>
                 `;
-                button.title = "Aufsteigend sortiert - Klicken für absteigend";
+                button.title = "Sorted ascending - Click for descending";
             } else {
                 button.innerHTML = `
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -621,7 +621,7 @@
                         <path d="M3 18h18"/>
                     </svg>
                 `;
-                button.title = "Absteigend sortiert - Klicken für aufsteigend";
+                button.title = "Sorted descending - Click for ascending";
             }
             
             button.classList.toggle('active', !sortAscending);
@@ -711,7 +711,7 @@
         };
 
         const createFolder = async () => {
-            const folderName = prompt('Ordnername eingeben:');
+            const folderName = prompt('Enter folder name:');
             if (folderName && folderName.trim()) {
                 try {
                     console.log('Creating folder:', folderName, 'in path:', currentPath);
@@ -732,16 +732,16 @@
                     });
 
                     if (response.ok) {
-                        showMessage(`Ordner "${folderName}" erfolgreich erstellt`);
+                        showMessage(`Folder "${folderName}" created successfully`);
                         loadFiles(currentPath); // Reload current directory
                     } else {
                         const errorText = await response.text();
                         console.error('Create folder error:', response.status, errorText);
-                        showMessage(`Fehler beim Erstellen des Ordners: ${errorText}`, true);
+                        showMessage(`Error creating folder: ${errorText}`, true);
                     }
                 } catch (error) {
                     console.error('Create folder exception:', error);
-                    showMessage(`Fehler beim Erstellen des Ordners: ${error.message}`, true);
+                    showMessage(`Error creating folder: ${error.message}`, true);
                 }
             }
         };
@@ -799,7 +799,7 @@
                             <line x1="15" y1="9" x2="9" y2="15"/>
                             <line x1="9" y1="9" x2="15" y2="15"/>
                         </svg>
-                        <p style="color: var(--error-color);">Fehler beim Laden der Dateiliste: ${error.message}</p>
+                        <p style="color: var(--error-color);">Error loading file list: ${error.message}</p>
                     </div>
                 `;
             }
@@ -816,8 +816,8 @@
                             <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
                             <polyline points="13,2 13,9 20,9"/>
                         </svg>
-                        <p>Keine Dateien gefunden</p>
-                        <p style="font-size: 0.9rem; opacity: 0.7;">Laden Sie Ihre erste Datei hoch, um zu beginnen</p>
+                        <p>No files found</p>
+                        <p style="font-size: 0.9rem; opacity: 0.7;">Upload your first file to get started</p>
                     </div>
                 `;
                 return;
@@ -837,7 +837,7 @@
                     `}
                     <div class="file-name">${file.name}</div>
                     <div style="font-size: 0.75rem; color: var(--text-secondary); margin: 0.25rem 0;">
-                        ${file.isFolder ? 'Ordner' : `${formatFileSize(file.size)} • ${formatDate(file.date)}`}
+                        ${file.isFolder ? 'Folder' : `${formatFileSize(file.size)} • ${formatDate(file.date)}`}
                     </div>
                     ${!file.isFolder ? `
                         <div class="file-actions">
@@ -857,7 +857,7 @@
 
         const updateFileStats = () => {
             const count = allFiles.length;
-            document.getElementById('fileCount').textContent = `${count} ${count === 1 ? 'Datei' : 'Dateien'}`;
+            document.getElementById('fileCount').textContent = `${count} ${count === 1 ? 'File' : 'Files'}`;
         };
 
         const downloadFileFromList = (filename) => {
@@ -871,7 +871,7 @@
             link.click();
         };
 
-        // Dateiliste beim Laden der Seite laden
+        // Load file list when page loads
         document.addEventListener('DOMContentLoaded', () => {
             console.log('DOM loaded, initializing...');
             loadFiles('');
