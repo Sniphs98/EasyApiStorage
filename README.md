@@ -1,12 +1,12 @@
-# 📁 API Storage
+# 📁 SimpelWebFileBrowser
 
-> Modern file storage API with web interface and folder navigation
+> Simple web-based file browser with folder navigation and modern interface
 
 [![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go)](https://golang.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat&logo=docker)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-A user-friendly file storage solution with modern web interface, built with Go and responsive frontend design.
+A simple and user-friendly web file browser with modern interface, built with Go and responsive frontend design.
 
 ## ✨ Features
 
@@ -23,8 +23,8 @@ A user-friendly file storage solution with modern web interface, built with Go a
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/apiStorage.git
-cd apiStorage
+git clone https://github.com/yourusername/SimpelWebFileBrowser.git
+cd SimpelWebFileBrowser
 
 # Install dependencies
 go mod tidy
@@ -42,8 +42,8 @@ Access the application:
 
 ```bash
 # Build and run
-docker build -t api-storage .
-docker run -d -p 8080:8080 -v $(pwd)/store:/app/store api-storage
+docker build -t simpel-web-file-browser .
+docker run -d -p 8080:8080 -v $(pwd)/store:/app/store simpel-web-file-browser
 ```
 
 ## 📖 API Reference
@@ -106,7 +106,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**[⭐ Star this project](https://github.com/yourusername/apiStorage)** if you like it!
+**[⭐ Star this project](https://github.com/yourusername/SimpelWebFileBrowser)** if you like it!
 
 Made with ❤️ and Go
 
