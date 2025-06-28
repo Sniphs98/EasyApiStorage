@@ -1,23 +1,26 @@
 # Multi-stage build for smaller final image
 FROM golang:1.21-alpine AS builder
 
+# Install git and ca-certificates (needed for go modules and HTTPS)
+RUN apk add --no-cache git ca-certificates
+
 # Set working directory
 WORKDIR /app
 
-# Install git (needed for go modules)
-RUN apk add --no-cache git
-
-# Copy go mod files
+# Copy go mod files first (for better Docker layer caching)
 COPY go.mod go.sum ./
 
 # Download dependencies
-RUN go mod download
+RUN go mod download && go mod verify
 
 # Copy source code
 COPY . .
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o SimpelWebFileBrowser main.go
+# Build the application with optimizations
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+    -ldflags='-w -s -extldflags "-static"' \
+    -a -installsuffix cgo \
+    -o SimpelWebFileBrowser main.go
 
 # Final stage - minimal image
 FROM alpine:latest
