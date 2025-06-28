@@ -4,6 +4,9 @@ store/
 # Keep the store directory structure but ignore its contents
 !store/.gitkeep
 
+# License file should be tracked
+!LICENSE
+
 # Go build artifacts
 apiStorage
 apiStorage.exe
@@ -48,3 +51,5 @@ Thumbs.db
 # docs/docs.go
 # docs/swagger.json
 # docs/swagger.yaml
+
+.opencode
