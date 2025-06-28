@@ -4,7 +4,7 @@
 
 [![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go)](https://golang.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat&logo=docker)](https://www.docker.com/)
-[![Docker Image](https://img.shields.io/badge/Docker-ghcr.io-2496ED?style=flat&logo=docker)](https://github.com/yourusername/SimpelWebFileBrowser/pkgs/container/simpelwebfilebrowser)
+[![Docker Image](https://img.shields.io/badge/Docker-ghcr.io-2496ED?style=flat&logo=docker)](https://github.com/sniphs98/SimpelWebFileBrowser/pkgs/container/simpelwebfilebrowser)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 A simple and user-friendly web file browser with modern interface, built with Go and responsive frontend design.
@@ -24,7 +24,7 @@ A simple and user-friendly web file browser with modern interface, built with Go
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/SimpelWebFileBrowser.git
+git clone https://github.com/sniphs98/SimpelWebFileBrowser.git
 cd SimpelWebFileBrowser
 
 # Install dependencies
@@ -45,8 +45,8 @@ Access the application:
 
 ```bash
 # Pull and run from GitHub Container Registry
-docker pull ghcr.io/yourusername/simpelwebfilebrowser:latest
-docker run -d -p 8080:8080 -v $(pwd)/store:/app/store ghcr.io/yourusername/simpelwebfilebrowser:latest
+docker pull ghcr.io/sniphs98/simpelwebfilebrowser:latest
+docker run -d -p 8080:8080 -v $(pwd)/store:/app/store ghcr.io/sniphs98/simpelwebfilebrowser:latest
 ```
 
 #### Option 2: Build Locally
@@ -117,7 +117,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**[⭐ Star this project](https://github.com/yourusername/SimpelWebFileBrowser)** if you like it!
+**[⭐ Star this project](https://github.com/sniphs98/SimpelWebFileBrowser)** if you like it!
 
 Made with ❤️ and Go
 
