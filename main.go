@@ -23,7 +23,7 @@ import (
 // @host localhost:8080
 // @BasePath /
 
-const storePath = "./store"
+const storePath = "/store"
 
 type FileInfo struct {
 	Name     string    `json:"name"`
@@ -84,9 +84,9 @@ func main() {
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
 	fmt.Println("Server starting on :8080")
-	fmt.Println("Web Interface: http://localhost:8080/")
-	fmt.Println("Swagger UI: http://localhost:8080/swagger/")
-	log.Fatal(http.ListenAndServe(":8080", r))
+	fmt.Println("Web Interface: http://0.0.0.0:8080/")
+	fmt.Println("Swagger UI: http://0.0.0.0:8080/swagger/")
+	log.Fatal(http.ListenAndServe("0.0.0.0:8080", r))
 }
 
 // Helper function to validate and clean paths

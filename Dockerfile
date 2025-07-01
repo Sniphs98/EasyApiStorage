@@ -44,7 +44,10 @@ COPY --from=builder /app/templates ./templates
 # Copy docs directory (for Swagger)
 COPY --from=builder /app/docs ./docs
 
-# Set permissions for app directory (but don't create store directory)
+# Create store directory with proper permissions
+RUN mkdir -p /store && chown -R appuser:appgroup /store
+
+# Set permissions for app directory
 RUN chown -R appuser:appgroup /app
 
 # Switch to non-root user
