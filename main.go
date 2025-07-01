@@ -23,7 +23,7 @@ import (
 // @host localhost:8080
 // @BasePath /
 
-const storePath = "./store"
+const storePath = "/store"
 
 type FileInfo struct {
 	Name     string    `json:"name"`
@@ -49,9 +49,29 @@ func webInterface(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	// Ensure store directory exists
-	if err := os.MkdirAll(storePath, 0755); err != nil {
-		log.Fatal("Could not create store directory:", err)
+	// Check if store directory exists and is accessible
+	if stat, err := os.Stat(storePath); err != nil {
+		if os.IsNotExist(err) {
+			// Directory doesn't exist, create it
+			if err := os.MkdirAll(storePath, 0755); err != nil {
+				log.Fatal("Could not create store directory:", err)
+			}
+			log.Printf("Created store directory: %s", storePath)
+		} else {
+			log.Fatal("Could not access store directory:", err)
+		}
+	} else {
+		log.Printf("Store directory exists: %s (is directory: %v)", storePath, stat.IsDir())
+		if !stat.IsDir() {
+			log.Fatal("Store path exists but is not a directory")
+		}
+	}
+
+	// Test if we can read the directory
+	if files, err := os.ReadDir(storePath); err != nil {
+		log.Fatal("Cannot read store directory:", err)
+	} else {
+		log.Printf("Store directory is accessible, contains %d items", len(files))
 	}
 
 	r := mux.NewRouter()
@@ -231,11 +251,21 @@ func listFiles(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Query().Get("path")
 	targetDir, err := buildTargetDir(storePath, path)
 	if err != nil {
+		log.Printf("Invalid path error: %v", err)
 		http.Error(w, "Invalid path: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	log.Printf("Listing files in: %s (from path: %s)", targetDir, path)
+
+	// Check if directory exists and is accessible
+	if stat, err := os.Stat(targetDir); err != nil {
+		log.Printf("Error accessing directory %s: %v", targetDir, err)
+		http.Error(w, "Could not access directory", http.StatusInternalServerError)
+		return
+	} else {
+		log.Printf("Directory %s exists, is directory: %v, permissions: %v", targetDir, stat.IsDir(), stat.Mode())
+	}
 
 	files, err := os.ReadDir(targetDir)
 	if err != nil {
@@ -244,10 +274,15 @@ func listFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("ReadDir returned %d entries", len(files))
+
 	var fileInfos []FileInfo
-	for _, file := range files {
+	for i, file := range files {
+		log.Printf("Processing file %d: %s", i, file.Name())
+
 		info, err := file.Info()
 		if err != nil {
+			log.Printf("Error getting info for file %s: %v", file.Name(), err)
 			continue
 		}
 
@@ -266,9 +301,10 @@ func listFiles(w http.ResponseWriter, r *http.Request) {
 			Path:     itemPath,
 		}
 		fileInfos = append(fileInfos, fileInfo)
+		log.Printf("Added file info: %+v", fileInfo)
 	}
 
-	log.Printf("Found %d items", len(fileInfos))
+	log.Printf("Found %d items total", len(fileInfos))
 
 	w.Header().Set("Content-Type", "application/json")
 
@@ -282,6 +318,8 @@ func listFiles(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Could not encode response", http.StatusInternalServerError)
 		return
 	}
+
+	log.Printf("Successfully sent response with %d files", len(fileInfos))
 }
 
 // createFolder creates a new folder
