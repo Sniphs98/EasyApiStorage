@@ -23,7 +23,7 @@ import (
 // @host localhost:8080
 // @BasePath /
 
-const storePath = "/store"
+const storePath = "./store"
 
 type FileInfo struct {
 	Name     string    `json:"name"`
