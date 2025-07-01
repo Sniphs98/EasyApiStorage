@@ -23,7 +23,7 @@ import (
 // @host localhost:8080
 // @BasePath /
 
-const storePath = "/store"
+var storePath = "/store"
 
 type FileInfo struct {
 	Name     string    `json:"name"`
@@ -49,6 +49,11 @@ func webInterface(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	// Check for custom store path from environment variable
+	if customPath := os.Getenv("STORE_PATH"); customPath != "" {
+		storePath = customPath
+	}
+
 	// Check if store directory exists and is accessible
 	if stat, err := os.Stat(storePath); err != nil {
 		if os.IsNotExist(err) {
